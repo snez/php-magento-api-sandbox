@@ -1,23 +1,21 @@
-# Place a magento order via API
+# Place a magento order using Stripe via REST API as a guest customer
 
-This is a sandbox module to place a order in a Magento 2 shop via api. We use it as a demo application for our [OpenTrigger](https://www.opentrigger.com) System.
+This is a fork of the example project from [https://github.com/acolono/php-magento-api-sandbox](https://github.com/acolono/php-magento-api-sandbox), modified to work with the Stripe payment method when the Stripe module at https://stripe.com/docs/magento is installed on a Magento 2 website.
 
-The API examples are mostly taken from [this magento.stackexchage.com entry](http://magento.stackexchange.com/questions/136028/magento-2-create-order-using-rest-api)
+## Usage
 
-## Video demonstration
-https://www.youtube.com/watch?v=bM9SWjf4cbc
-
-## Create api key in Magento:
+1. Create api key in Magento:
 
 - Go to: System -> Integrations -> "Add new integration"
 - Create a new Integration with sufficient permissions (e.g. set Ressource Access to "All" if you are just playing around)
 - Note down the created Access Token for usage in place-order.php
 
-## Configure place-order.php
+2. Configure place-order.php
 
 Set valid values for `$api_url`, `$token` and `$sku`.
 
-## Execute order
+3. Place the order
+
 ``php place-order.php``
 
 

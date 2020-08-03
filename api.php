@@ -18,7 +18,7 @@ class MagentoClient {
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
-      $headers = array();
+    $headers = array();
     $headers[] = "Authorization: Bearer " . $this->bearer_token;
     if ($body) {
       $headers[] = "Content-Type: application/json";
@@ -62,10 +62,13 @@ class MagentoClient {
     );
   }
 
-  public function placeOrder($cart_id, $payment_method = 'cashondelivery') {
+  public function placeOrder($cart_id, $payment_method = 'cashondelivery', $additional_data = null) {
     $payment = array(
       'paymentMethod' => array('method' => $payment_method)
     );
+
+    if (is_array($additional_data))
+      $payment['paymentMethod']['additional_data'] = $additional_data;
 
     return $this->request('/guest-carts/' . $cart_id . '/order',
       'PUT',
@@ -76,5 +79,5 @@ class MagentoClient {
   public function getPaymentMethods($cart_id) {
     return $this->request('/guest-carts/' . $cart_id . '/payment-information', 'GET');
   }
-  
+
 }

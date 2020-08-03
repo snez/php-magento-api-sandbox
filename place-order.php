@@ -70,6 +70,11 @@ $order_shipment = $magento->setShipping($cart, $ship_to);
 //$payment = $magento->getPaymentMethods($cart);
 //var_dump($payment);
 
-$ordered = $magento->placeOrder($cart, 'cashondelivery');
+$additionalData = [
+    "cc_save" => false,
+    "cc_stripejs_token" => "pm_card_visa:visa:4242"
+];
+
+$ordered = $magento->placeOrder($cart, 'stripe_payments', $additionalData);
 echo "\nordered:\n";
 var_dump($ordered);
