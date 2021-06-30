@@ -1,0 +1,133 @@
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <button id="placeOrder">Place Order</button>
+    <div id="result"></div>
+
+    <script type="text/javascript">
+        var PUBLISHABLE_KEY="pk_test_xxxxxxxxx";
+        var cartId = null;
+        var stripe = null;
+
+        var onPlaceOrderButtonClick = function()
+        {
+            cartId = null;
+            placeOrder();
+        };
+
+        var placeOrder = function()
+        {
+            $("#result").html("");
+            $("#placeOrder").prop('disabled', true);
+            var url = "/place-order.php";
+            if (cartId)
+                url = url + "?cartId=" + cartId;
+
+            $.get(url, onPlaceOrderSuccess)
+                .fail(onPlaceOrderFail)
+                .always(onPlaceOrderFinished);
+        };
+
+        var onPlaceOrderSuccess = function(data)
+        {
+            try
+            {
+                var json = $.parseJSON(data);
+                console.log(json);
+                if (json.cartId)
+                {
+                    cartId = json.cartId;
+                    placeOrder();
+                    return;
+                }
+                else if (typeof json.message != "undefined" && json.message.indexOf("Authentication Required: ") === 0)
+                {
+                    var pi_client_secret = json.message.substring("Authentication Required: ".length);
+                    authenticate(pi_client_secret);
+                }
+                else
+                {
+                    $("#result").html(data);
+                }
+            }
+            catch (e)
+            {
+                $("#result").html("<p>" + e.message + "</p>" + data);
+            }
+        };
+
+        var onPlaceOrderFail = function(e)
+        {
+            console.log(e);
+            $("#result").html("<p>Could not place order</p>");
+        };
+
+        var onPlaceOrderFinished = function()
+        {
+            $("#placeOrder").prop('disabled', false);
+        };
+
+        var authenticate = function(pi_client_secret)
+        {
+            stripe.retrievePaymentIntent(pi_client_secret).then(function(result)
+            {
+                if (result.paymentIntent.confirmation_method == "manual")
+                    return handleCardAction(pi_client_secret, placeAuthenticatedOrder);
+                else
+                    return handleCardPayment(pi_client_secret, placeAuthenticatedOrder);
+            });
+        };
+
+        var handleCardPayment = function(pi_client_secret, done)
+        {
+            try
+            {
+                stripe.handleCardPayment(pi_client_secret).then(function(result)
+                {
+                    if (result.error)
+                        return done(result.error.message);
+
+                    return done();
+                });
+            }
+            catch (e)
+            {
+                done(e.message);
+            }
+        };
+
+        var handleCardAction = function(pi_client_secret, done)
+        {
+            try
+            {
+                stripe.handleCardAction(pi_client_secret).then(function(result)
+                {
+                    if (result.error)
+                        return done(result.error.message);
+
+                    return done();
+                });
+            }
+            catch (e)
+            {
+                done(e.message);
+            }
+        };
+
+        var placeAuthenticatedOrder = function(error)
+        {
+            if (typeof error != "undefined")
+                $("#result").html(error);
+            else
+                placeOrder();
+        };
+
+        $(document).ready(function(e){
+            $("#placeOrder").click(placeOrder);
+            stripe = Stripe(PUBLISHABLE_KEY);
+        });
+    </script>
+</body>
