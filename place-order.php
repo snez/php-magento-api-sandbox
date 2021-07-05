@@ -2,11 +2,11 @@
 require_once 'api.php';
 
 // The URL to your Magento 2 instance (ending with /index.php/rest/V1)
-$api_url = 'http://YOUR-MAGENTO_DOMAIN/index.php/rest/V1';
+$api_url = 'http://stripe-magento2.cryozonic.com/index.php/rest/V1';
 // Set the integrations access token.
-$token = 'YOUR-ACCESS-TOKEN';
+$token = 'xk92dbynuarqoglgdxeh8qt9t4w3grwr';
 // Fill in the SKU of the product which should be ordered.
-$sku = 'PRODUCT-SKU-TO-ORDER';
+$sku = '24-WB04';
 
 $magento = new MagentoClient($token, $api_url);
 
